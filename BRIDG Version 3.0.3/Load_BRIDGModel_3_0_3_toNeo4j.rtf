@@ -1,0 +1,105 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf200
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 //\
+//  Using BRIDGModel extracts,  load the 3.0.3 version csv files into a Graph Database.\
+//  These scripts are specific to neo4j,  but the should be easily adjustable to any cypher-based graph database. \
+//\
+//  The Node file loads ClassNames, and the Attribute File loads Attributes.  \
+//  Attributes link to ClassNames with the \'91HAS\'92 relationship.\
+//  The Edges file is used to load Associations and Descendents.   The Ancestor_of edge is not created.  \
+//  \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 //\
+//  The Node file loads ClassNames, and the Attribute File loads Attributes.  \
+//  Attributes link to ClassNames with the \'91HAS\'92 relationship.\
+//  The Edges file is used to load Associations and Descendents.   The Ancestor_of edge is not created.  \
+//  \
+//\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 //\
+//   This assumes the input files exist in the BRIDG Import File \
+//\
+//   Jane Pollack 2019/04/26\
+//\
+\
+// DELETING EVERYTHING for a particular version:\
+MATCH (n:Attribute)\
+       OPTIONAL MATCH (n:Attribute \{version:\'923.0.3\'92\})-[r \{version:\'923.0.3\'92\}]-()\
+       WITH n,r LIMIT 50000\
+       DELETE n,r\
+       RETURN count(n) as deletedNodesCount;\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+MATCH (n:ClassName)\
+       OPTIONAL MATCH (n:ClassName \{version:\'923.0.3\'92\})-[r \{version:\'923.0.3\'92\}]-()\
+       WITH n,r LIMIT 50000\
+       DELETE n,r\
+       RETURN count(n) as deletedNodesCount;\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+CREATE CONSTRAINT ON (c:ClassName) ASSERT c.ClassNameVersion IS UNIQUE;\
+\
+USING PERIODIC COMMIT\
+\
+// --------------------------------------------------------\
+//\
+//  Loading 3.0.3 Classes, Attributes, and Relationships\
+//\
+// --------------------------------------------------------\
+\
+// Create all the Classes \
+LOAD CSV WITH HEADERS FROM 'file:///BRIDG_3_0_3_Node.csv' AS line WITH line \
+CREATE (className:ClassName \{\
+ClassNameVersion: trim(line.ClassName) + '_' + trim(line.Version), \
+name: trim( line.ClassName), \
+subdomainName: trim(line.SubdomainName), \
+version: trim(line.Version),\
+notes: trim(line.Notes)\
+\} )\
+;\
+\
+// Get all the Classes\
+//MATCH (ca:ClassName) return ca.name;\
+//MATCH (a:ClassName) WHERE a.name = "Subject" return a;\
+\
+//ClassName	Attribute	DataType	Version	Notes\
+LOAD CSV WITH HEADERS FROM 'file:///BRIDG_3_0_3_Attribute.csv' AS line WITH line \
+CREATE (attribute:Attribute \{\
+CNAVersion: trim(line.ClassName) + '_' + trim(line.Attribute) + "_" + trim(line.Version), \
+name: trim( line.Attribute), \
+dataType: trim(line.DataType), \
+className: trim(line.ClassName), \
+version: trim(line.Version),\
+notes: trim(line.Notes)\
+\} )\
+;\
+\
+// Link the Classes to their Attributes\
+CREATE INDEX ON :ClassName(ClassName);\
+CREATE INDEX ON :Attribute(ClassName);\
+// Link the Attributes to their Classes.\
+MATCH (c:ClassName \{version:"3.0.3"\}) WHERE c.version = "3.0.3" \
+MATCH (a:Attribute \{version:"3.0.3"\}) WHERE a.className = c.name AND a.version = "3.0.3"\
+CREATE (c)-[:HAS \{version: "3.0.3"\}] -> (a)\
+;\
+\
+// Load the Associations and Descendents\
+//ClassNameA	ConnectorType	ClassNameB	RelationshipName	Version. Notes\
+LOAD CSV WITH HEADERS FROM 'file:///BRIDG_3_0_3_Edge.csv' AS line with line\
+MATCH (cA:ClassName \{version:"3.0.3"\}) WHERE cA.name = line.ClassNameA AND line.ConnectorType = "ASSOCIATION_WITH"\
+MATCH (cB:ClassName \{version:"3.0.3"\}) WHERE cB.name = line.ClassNameB AND line.ConnectorType = "ASSOCIATION_WITH"\
+CREATE (cA)-[:ASSOCIATION_WITH \{relationship:line.RelationshipName, version:line.Version, notes:line.Notes\}]->(cB)\
+;\
+\
+LOAD CSV WITH HEADERS FROM 'file:///BRIDG_3_0_3_Edge.csv' AS line with line\
+MATCH (cA:ClassName \{version:"3.0.3"\}) WHERE cA.name = line.ClassNameA AND line.ConnectorType = "DESCENDENT_OF"\
+MATCH (cB:ClassName \{version:"3.0.3"\}) WHERE cB.name = line.ClassNameB AND line.ConnectorType = "DESCENDENT_OF"\
+CREATE (cA)-[:DESCENDENT_OF \{relationship:line.RelationshipName, version:line.Version, notes:line.Notes\}]->(cB)\
+;\
+\
+}
