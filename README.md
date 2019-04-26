@@ -19,13 +19,47 @@ I.    Install a neo4j database.  (Needs to be done only once)
 
 II.   Copy the csv files for a version to the import file directory. (Needs to be done only once per version)
 
-      A. To Be Done:  Instructions on how to get the input files from the repository
+      A. Clone or Download the files to your desired local directory.  If you Download in a zip format,  you can extract a desired version.
+      
+      	1.  Unless you change the default location of the import directory,  the csv files must exist in the import diretory.  (See above)
+	
+	2.  The txt file (the run script) should be in a convenient location to the cypher-shell utility.  For homebrew installations,  this is /usr/local/Cellar/neo4j/3.5.0/bin
 	
 III.  Open a neo4j terminal session to run script. (Needs to be done every time you want to run a script)
-
-      A.  The neo4j database needs to be running.
-      B.  To Be Done:  Instructions on how to get the input files from the repository
+	
+      A.  The neo4j database needs to be running. 
+      B.  First Method:  Run the script in total
+      
+      [terminal]$ /usr/local/Cellar/neo4j/3.5.0/bin/cypher-shell -uneo4j -pne04j < Load_BRIDGModel_5_2_toNeo4j.txt  <return>
+      
+      
+      C.  Second Method:  Run the script one line at a time
+      [terminal]$ /usr/local/Cellar/neo4j/3.5.0/bin/cypher-shell. <return>
+		username: neo4j
+		password: *****
+		Connected to Neo4j 3.5.0 at bolt://localhost:7687 as user neo4j.
+		Type :help for a list of available commands or :exit to exit the shell.
+		Note that Cypher queries must end with a semicolon.
+		neo4j> 
+		
+		Cut and paste each command from the file Load_BRIDGModel_5_2_toNeo4j.txt to the cypher-shell session.  This allows you to monitor progress and errors.
 	
 IV.   Validate the model version is complete.
 
-      A.  To be Done:  Instructions on how to validate everything exists.
+	A.   Run the following command to validate loaded versions are complete. (Table shows expected output)
+	
+		neo4j> MATCH (n:ClassName) return n.version, count(*);  <return>
+		+----------------------+
+		| n.version | count(*) |
+		+---------------------+
+		| "3.2"     | 233      |
+		| "3.0.3"   | 202      |
+		| "5.1"     | 320      |
+		| "5.2"     | 326      |
+		+----------------------+
+		
+	B.    Terminate the cypher-shell gracefully --> :exit <return>
+		
+	
+
+
