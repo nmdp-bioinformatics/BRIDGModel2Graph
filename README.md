@@ -7,14 +7,24 @@ CIBMTR is a research collaboration between the NMDP and Medical College of Wisco
 
 This repository contains files that have been extracted from various BRIDG model versions and the scripts used to upload that data into a neo4j graph database.  The README file will briefly address setup activities so the scripts can be run.
 
-I.    Install a neo4j database.  (Needs to be done only once)  
+I.    Install a neo4j database.  (Needs to be done only once) 
+
       A.  neo4j has instructions on how to install a neo4j database:https://neo4j.com/docs/operations-manual/current/installation/ 
+	
       B.  Alternately, if using MacOS, use homebrew to download the latest neo4j repository: https://brew.sh/  
+	
           1.  Using homebrew,  A directory is created for import files:
               /usr/local/Cellar/neo4j/3.5.0/libexec/import
+	  
+
 II.   Copy the csv files for a version to the input file directory. (Needs to be done only once per version)
+
       A. To Be Done:  Instructions on how to get the input files from the repository
+	
 III.  Open a neo4j terminal session to run script. (Needs to be done every time you want to run a script)
+
       A.  To Be Done:  Instructions on how to get the input files from the repository
-IV.   Validate the model version is complete. 
+	
+IV.   Validate the model version is complete.
+
       A.  To be Done:  Instructions on how to validate everything exists.
