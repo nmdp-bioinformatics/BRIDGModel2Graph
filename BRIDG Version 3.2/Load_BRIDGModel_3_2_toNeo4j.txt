@@ -14,14 +14,14 @@
 //
 
 // DELETING EVERYTHING for a particular version:
-MATCH (n:Attribute)
-       OPTIONAL MATCH (n:Attribute {version:’3.2’})-[r {version:’3.2’}]-()
+MATCH (n:Attribute {version:"3.2"})
+       OPTIONAL MATCH (n:Attribute {version:"3.2"})-[r {version:"3.2"}]-()
        WITH n,r LIMIT 50000
        DELETE n,r
        RETURN count(n) as deletedNodesCount;
 
 MATCH (n:ClassName)
-       OPTIONAL MATCH (n:ClassName {version:’3.2’})-[r {version:’3.2’}]-()
+       OPTIONAL MATCH (n:ClassName {version:"3.2"})-[r {version:"3.2"}]-()
        WITH n,r LIMIT 50000
        DELETE n,r
        RETURN count(n) as deletedNodesCount;
@@ -86,4 +86,18 @@ MATCH (cA:ClassName {version:"3.2"}) WHERE cA.name = line.ClassNameA AND line.Co
 MATCH (cB:ClassName {version:"3.2"}) WHERE cB.name = line.ClassNameB AND line.ConnectorType = "DESCENDENT_OF"
 CREATE (cA)-[:DESCENDENT_OF {relationship:line.RelationshipName, version:line.Version, notes:line.Notes}]->(cB)
 ;
+
+// Check number of Classes.  For Version 3.2,  there are 233 Classes
+MATCH (c:ClassName) return c.version, count(*)
+// 
+// Check number of Attributes. For Version 3.2,  there are 639 attributes. 
+// Check there are no erroneous connections (ClassName and Attribute must both be version 3.2)
+MATCH (c:ClassName {version:"3.2"})-[r]-(a:Attribute) return c.version, a.version,type(r), count(*);
+//
+//│"3.2"      │"HAS"             │"3.2"      │["Attribute"]│"3.2"       │639       │
+//├───────────┼──────────────────┼───────────┼─────────────┼────────────┼──────────┤
+//│"3.2"      │"DESCENDENT_OF"   │"3.2"      │["ClassName"]│"3.2"       │210       │
+//├───────────┼──────────────────┼───────────┼─────────────┼────────────┼──────────┤
+//│"3.2"      │"ASSOCIATION_WITH"│"3.2"      │["ClassName"]│"3.2"       │661       │
+MATCH (c:ClassName)-[r]-(c1) RETURN c.version, type(r), r.version, labels(c1), c1.version, count(*)
 
