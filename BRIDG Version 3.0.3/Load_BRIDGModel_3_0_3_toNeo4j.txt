@@ -27,7 +27,7 @@ MATCH (n:ClassName {version:"3.0.3"})
 
 CREATE CONSTRAINT ON (c:ClassName) ASSERT c.ClassNameVersion IS UNIQUE;
 
-USING PERIODIC COMMIT
+//USING PERIODIC COMMIT
 
 // --------------------------------------------------------
 //
@@ -86,7 +86,7 @@ CREATE (cA)-[:DESCENDENT_OF {relationship:line.RelationshipName, version:line.Ve
 ;
 
 // Check number of Classes.  For Version 3.0.3,  there are 202 Classes
-MATCH (c:ClassName) return c.version, count(*)
+MATCH (c:ClassName) return c.version, count(*);
 // 
 // Check number of Attributes. For Version 3.0.3,  there are 557 attributes. 
 // Check there are no erroneous connections (ClassName and Attribute must both be version 3.0.3)
@@ -97,5 +97,5 @@ MATCH (c:ClassName {version:"3.0.3"})-[r]-(a:Attribute) return c.version, a.vers
 //│"3.0.3"    │"DESCENDENT_OF"   │"3.0.3"    │["ClassName"]│"3.0.3"     │176       │
 //├───────────┼──────────────────┼───────────┼─────────────┼────────────┼──────────┤
 //│"3.0.3"    │"ASSOCIATION_WITH"│"3.0.3"    │["ClassName"]│"3.0.3"     │575       │
-MATCH (c:ClassName)-[r]-(c1) RETURN c.version, type(r), r.version, labels(c1), c1.version, count(*)
+MATCH (c:ClassName)-[r]-(c1) RETURN c.version, type(r), r.version, labels(c1), c1.version, count(*);
 
